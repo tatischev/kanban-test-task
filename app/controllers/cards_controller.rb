@@ -1,48 +1,49 @@
-# Cards Controller
 class CardsController < ApplicationController
-  before_action :set_board
-  before_action :set_card, only: %i[show update destroy]
+	def index
+	  @cards = Card.all
+	  respond_to do |format|
+            format.json { render json: Resources.new(@cards) }
+          end
+	end
 
-  # GET /cards
-  def index
-    render json: Resources.new(@board.cards)
-  end
+	def new
+	  list = List.find(list_params[:id])
+	  @card = Card.new(list: list)
+	end
 
-  # POST /cards
-  def create
-    @card = Card.create!(card_params)
-    render json: @card, status: :created
-  end
+	def create
+	  @card = Card.new(card_params)
+	  respond_to do |format|
+	    if @card.save
+	      format.json { render :show, status: :created, location: @card }
+	    else
+	      format.json { render json: @card.errors, status: :unprocessable_entity }
+	    end
+	  end
+	end
 
-  # GET /cards/:id
-  def show
-    render json: @card
-  end
+	def update
+	  respond_to do |format|
+	    if @card.update(card_params)
+	      format.json { render :show, status: :ok, location: @card }
+	    else
+	      format.json { render json: @card.errors, status: :unprocessable_entity }
+	    end
+	  end
+	end
 
-  # PUT /cards/:id
-  def update
-    @card.update!(card_params)
-    render json: @card
-  end
+	def destroy
+	  @card.destroy
+	  respond_to do |format|
+	    format.json { head :no_content }
+	  end
+	end
 
-  # DELETE /cards/:id
-  def destroy
-    @card.destroy
-    head :no_content
-  end
+	def get_card
+	  @card = Card.find(params[:id])
+	end
 
-  private
-
-  def card_params
-    # whitelist params
-    params.permit(:title, :description, :color, :board_id, :list_id, :position)
-  end
-
-  def set_board
-    @board = Board.find(params[:board_id])
-  end
-
-  def set_card
-    @card = @board.cards.find_by!(id: params[:id]) if @board
-  end
+	def card_params
+	  params.require(:card).permit(:id, :title, :list_id)
+	end
 end

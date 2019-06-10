@@ -1,9 +1,5 @@
-# ApplicationRecord
 class Card < ApplicationRecord
-  validates :title, presence: true, length: { in: 2..30 }
-
-  belongs_to :board, required: true
-  belongs_to :list, required: true
-
-  acts_as_list scope: :list
+	belongs_to :list
+	validates :list_id, presence: true
+	validates :title
 end

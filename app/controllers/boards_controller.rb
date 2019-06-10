@@ -1,47 +1,41 @@
-# BoardsController
 class BoardsController < ApplicationController
-  before_action :set_board, only: %i[show update destroy]
+	def index
+	  @boards = Board.all
+	  respond_to do |format|
+            format.json { render json: Resources.new(@boards) }
+          end
+	end
 
-  # GET /boards
-  def index
-    @boards = Board.all
-    render json: Resources.new(@boards)
-  end
+	def new
+		@board = Board.new
+	end
 
-  # POST /boards
-  def create
-    @board = Board.create(board_params)
-    if @board.valid?
-      render json: @board, status: :created
-    else
-      render json: @board.errors
-    end
-  end
+	def show
+	  respond_to do |format|
+	    format.json {render json: @board}
+	  end		
+	end
 
-  # GET /boards/:id
-  def show
-    render json: @board
-  end
+	def create
+		@board = Board.new(board_params)
+		respond_to do |format|
+		  if @board.save
+		    format.json { render :show, status: :created, location: @board }
+		  else
+		    format.json { render json: @board.errors, status: :unprocessable_entity }
+		  end
+		end
+	end
 
-  # PUT /boards/:id
-  def update
-    @board.update!(board_params)
-    render json: @board
-  end
+	def update
+		respond_to do |format|
+		  if @board.update(board_params)
+		    format.json { render :show, status: :ok, location: @board }
+		  end
+		end
+	end
 
-  # DELETE /boards/:id
-  def destroy
-    @board.destroy
-    head :no_content
-  end
-
-  private
-
-  def board_params
-    params.permit(:title, :description, :color)
-  end
-
-  def set_board
-    @board = Board.find(params[:id])
-  end
+	def get_board
+		@board = Board.find(board_id)
+	end	
 end

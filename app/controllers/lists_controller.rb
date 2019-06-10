@@ -1,48 +1,50 @@
-# Lists Controller
 class ListsController < ApplicationController
-  before_action :set_board
-  before_action :set_list, only: %i[show update destroy]
+	def index
+	  @lists = List.all
+	  respond_to do |format|
+            format.json { render json: Resources.new(@lists) }
+          end
+	end
 
-  # GET /lists
-  def index
-    render json: Resources.new(@board.lists)
-  end
+	def new
+	  board = Board.find(board_params[:id])
+	  list = List.new(board: board)
+	end
 
-  # POST /lists
-  def create
-    @list = List.create!(list_params)
-    render json: @list, status: :created
-  end
+	def create
+	  @list = List.new(list_params)
+	  respond_to do |format|
+	    if @list.save
+	      format.json { render :show, status: :created, location: @list }
+	    else
+	      format.json { render json: @list.errors, status: :unprocessable_entity }
+	    end
+	  end
+	end
 
-  # GET /lists/:id
-  def show
-    render json: @list
-  end
+	def update
+	  respond_to do |format|
+	    if @list.update(list_params)
+	      format.json { render :show, status: :ok, location: @list }
+	    else
+	      format.json { render json: @list.errors, status: :unprocessable_entity }
+	    end
+	  end
+	end
 
-  # PUT /lists/:id
-  def update
-    @list.update!(list_params)
-    render json: @list
-  end
+	def destroy
+	  @list.destroy
+	  respond_to do |format|
+	    format.json { head :no_content }
+	  end
+	end
 
-  # DELETE /lists/:id
-  def destroy
-    @list.destroy
-    head :no_content
-  end
+	def get_list
+	  @list = List.find(params[:id])
+	end
 
-  private
-
-  def list_params
-    # whitelist params
-    params.permit(:title, :description, :color, :board_id)
-  end
-
-  def set_board
-    @board = Board.find(params[:board_id])
-  end
-
-  def set_list
-    @list = @board.lists.find_by!(id: params[:id]) if @board
-  end
+	def list_params
+	  params.require(:list).permit(:id, :board_id)
+	end
 end
+

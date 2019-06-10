@@ -1,3 +1,3 @@
 class ListsSerializer < ActiveModel::Serializer
-  attributes :id
+  attributes :board_id
 end
