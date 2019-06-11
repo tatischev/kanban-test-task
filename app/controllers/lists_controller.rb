@@ -1,9 +1,7 @@
 class ListsController < ApplicationController
 	def index
 	  @lists = List.all
-	  respond_to do |format|
-            format.json { render json: Resources.new(@lists) }
-          end
+		render json: Resources.new(@lists)
 	end
 
 	def new
@@ -13,30 +11,24 @@ class ListsController < ApplicationController
 
 	def create
 	  @list = List.new(list_params)
-	  respond_to do |format|
-	    if @list.save
-	      format.json { render :show, status: :created, location: @list }
-	    else
-	      format.json { render json: @list.errors, status: :unprocessable_entity }
-	    end
+    if @list.save
+      render :show, status: :created, location: @list }
+	  else
+	  	render json: @list.errors, status: :unprocessable_entity
 	  end
 	end
 
 	def update
-	  respond_to do |format|
-	    if @list.update(list_params)
-	      format.json { render :show, status: :ok, location: @list }
-	    else
-	      format.json { render json: @list.errors, status: :unprocessable_entity }
-	    end
+		if @list.update(list_params)
+	  	render :show, status: :ok, location: @list
+	  else
+	  	render json: @list.errors, status: :unprocessable_entity
 	  end
 	end
 
 	def destroy
 	  @list.destroy
-	  respond_to do |format|
-	    format.json { head :no_content }
-	  end
+	  head :no_content
 	end
 
 	def get_list
@@ -47,4 +39,3 @@ class ListsController < ApplicationController
 	  params.require(:list).permit(:id, :board_id)
 	end
 end
-
